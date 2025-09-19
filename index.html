@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Онлайн-магазин</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        li {
+            background-color: #f4f4f4;
+            margin-bottom: 5px;
+            padding: 10px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Список товарів</h1>
+    <button id="loadButton">Завантажити товари</button>
+    <ul id="itemsList"></ul>
+
+    <script>
+        document.getElementById('loadButton').addEventListener('click', () => {
+            // Використовуємо fetch для виклику API на бекенді
+            fetch('http://127.0.0.1:5000/items')
+                .then(response => {
+                    // Перевіряємо, чи запит успішний
+                    if (!response.ok) {
+                        throw new Error('Помилка мережі або сервера!');
+                    }
+                    return response.json(); // Парсимо відповідь як JSON
+                })
+                .then(items => {
+                    // Отримуємо елемент списку
+                    const itemsList = document.getElementById('itemsList');
+                    itemsList.innerHTML = ''; // Очищаємо список перед додаванням нових елементів
+
+                    // Перебираємо отримані дані та створюємо елементи списку
+                    items.forEach(item => {
+                        const li = document.createElement('li');
+                        li.textContent = `ID: ${item.id}, Назва: ${item.name}`;
+                        itemsList.appendChild(li);
+                    });
+                })
+                .catch(error => {
+                    console.error('Виникла проблема з fetch-операцією:', error);
+                    alert('Не вдалося завантажити товари. Переконайтесь, що бекенд працює.');
+                });
+        });
+    </script>
+
+</body>
+</html>
