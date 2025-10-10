@@ -1,4 +1,4 @@
-# E-Shop Core API
+
 
 ### Назва системи: E-Shop Core API (ESC API)
 
