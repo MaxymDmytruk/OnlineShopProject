@@ -208,4 +208,5 @@ __marimo__/
 
 .idea/
 venv/
+.env
 
