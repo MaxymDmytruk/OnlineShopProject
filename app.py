@@ -1,55 +1,38 @@
-import mysql.connector
-from flask import Flask, jsonify, request
+import os
+from flask import Flask, render_template
 from flask_cors import CORS
+import mysql.connector
+from dotenv import load_dotenv
 
-# Налаштування з'єднання з базою даних MySQL
-# Заміни 'root' та 'password' на свої облікові дані
+load_dotenv()
+
 db_config = {
-    'host': 'localhost',
-    'user': 'root',
-    'password': 'MaxKatya13',
-    'database': 'online_shop'
+    'host': os.getenv('DB_HOST'),
+    'user': os.getenv('DB_USER'),
+    'password': os.getenv('DB_PASSWORD'),
+    'database': os.getenv('DB_NAME')
 }
 
-# Ініціалізація додатку Flask
 app = Flask(__name__)
-# Дозволяє крос-доменні запити з клієнтського боку
 CORS(app)
 
-
-@app.route('/items', methods=['GET'])
+@app.route('/')
 def get_items():
-    """
-    Ендпоінт, який отримує список товарів з БД і повертає їх у форматі JSON.
-    """
     items = []
-    connection = None
+    connection = None  # <-- додаємо це
     try:
-        # Встановлюємо з'єднання з БД
         connection = mysql.connector.connect(**db_config)
-        cursor = connection.cursor()
-
-        # Виконуємо SQL-запит
+        cursor = connection.cursor(dictionary=True)
         cursor.execute("SELECT id, name FROM items")
-
-        # Отримуємо всі результати
-        results = cursor.fetchall()
-
-        # Перетворюємо результати в список словників
-        for row in results:
-            items.append({'id': row[0], 'name': row[1]})
-
-    except mysql.connector.Error as err:
-        return jsonify({"error": f"Error: {err}"}), 500
+        items = cursor.fetchall()
+    except mysql.connector.Error:
+        return "Помилка сервера при отриманні даних", 500
     finally:
         if connection and connection.is_connected():
             cursor.close()
             connection.close()
-
-    # Повертаємо список товарів у форматі JSON
-    return jsonify(items)
+    return render_template('items.html', items=items)
 
 
 if __name__ == '__main__':
-    # Запускаємо сервер в режимі відладки
     app.run(debug=True)
