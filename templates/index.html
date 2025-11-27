@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital Store</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #f8f9fa; }
+        /* Стиль для карток, щоб вони були однакової висоти */
+        .product-card { transition: transform 0.2s; height: 100%; border: none; shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .product-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+        .card-img-top { height: 180px; object-fit: cover; } /* Фіксуємо висоту картинок */
+        .price-tag { font-size: 1.2rem; font-weight: bold; color: #0d6efd; }
+        .category-badge { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; color: #888; }
+        #networkBanner { display: none; }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4 sticky-top">
+        <div class="container">
+            <a class="navbar-brand" href="#">⚡ Digital Store</a>
+            <div class="d-flex align-items-center">
+                <span id="userStatus" class="text-light me-3 small">Guest</span>
+                <button id="authBtn" class="btn btn-outline-light btn-sm" data-bs-toggle="modal" data-bs-target="#authModal">Login</button>
+                <button id="logoutBtn" class="btn btn-danger btn-sm d-none">Logout</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div id="networkBanner" class="alert alert-warning text-center fw-bold">
+            ⚠️ Connection issues. Retrying...
+        </div>
+
+        <ul class="nav nav-tabs mb-4" id="myTab" role="tablist">
+            <li class="nav-item"><button class="nav-link active" id="shop-tab" data-bs-toggle="tab" data-bs-target="#shop">🛍️ Shop</button></li>
+            <li class="nav-item"><button class="nav-link d-none" id="orders-tab" data-bs-toggle="tab" data-bs-target="#orders">📦 My Orders</button></li>
+            <li class="nav-item"><button class="nav-link d-none" id="admin-tab" data-bs-toggle="tab" data-bs-target="#admin">⚙️ Admin</button></li>
+        </ul>
+
+        <div class="tab-content">
+            <div class="tab-pane fade show active" id="shop">
+
+                <div class="d-flex justify-content-center mb-4">
+                    <div class="btn-group" role="group">
+                        <button type="button" class="btn btn-outline-secondary active" onclick="filterProducts('all')">All</button>
+                        <button type="button" class="btn btn-outline-secondary" onclick="filterProducts('ebooks')">E-Books</button>
+                        <button type="button" class="btn btn-outline-secondary" onclick="filterProducts('software')">Software</button>
+                        <button type="button" class="btn btn-outline-secondary" onclick="filterProducts('art')">Art</button>
+                    </div>
+                </div>
+
+                <div id="productList" class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-4">
+                    </div>
+            </div>
+
+            <div class="tab-pane fade" id="orders">
+                <h4>Purchase History</h4>
+                <button onclick="loadOrders()" class="btn btn-sm btn-secondary mb-3">Refresh</button>
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-light"><tr><th>ID</th><th>Product</th><th>Price</th><th>Date</th></tr></thead>
+                        <tbody id="ordersTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="tab-pane fade" id="admin">
+                <div class="card p-4 shadow-sm" style="max-width: 500px; margin: auto;">
+                    <h5 class="mb-3">➕ Add New Product</h5>
+                    <form id="createProductForm">
+                        <input type="text" id="pName" class="form-control mb-2" placeholder="Product Name" required>
+                        <input type="text" id="pDesc" class="form-control mb-2" placeholder="Description">
+                        <input type="number" id="pPrice" class="form-control mb-2" placeholder="Price ($)" step="0.01" required>
+
+                        <select id="pCategory" class="form-select mb-2">
+                            <option value="ebooks">E-Books</option>
+                            <option value="software">Software</option>
+                            <option value="art">Art</option>
+                        </select>
+
+                        <button type="submit" class="btn btn-success w-100">Create Product</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="authModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Welcome</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <ul class="nav nav-pills nav-fill mb-3">
+                        <li class="nav-item"><a class="nav-link active" data-bs-toggle="pill" href="#login-pane">Login</a></li>
+                        <li class="nav-item"><a class="nav-link" data-bs-toggle="pill" href="#reg-pane">Register</a></li>
+                    </ul>
+                    <div class="tab-content">
+                        <div class="tab-pane fade show active" id="login-pane">
+                            <form id="loginForm">
+                                <input type="email" id="loginEmail" class="form-control mb-2" placeholder="Email" required>
+                                <input type="password" id="loginPass" class="form-control mb-3" placeholder="Password" required>
+                                <button type="submit" class="btn btn-primary w-100">Login</button>
+                            </form>
+                        </div>
+                        <div class="tab-pane fade" id="reg-pane">
+                            <form id="registerForm">
+                                <input type="email" id="regEmail" class="form-control mb-2" placeholder="Email" required>
+                                <input type="password" id="regPass" class="form-control mb-3" placeholder="Password" required>
+                                <button type="submit" class="btn btn-success w-100">Register</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const authModal = new bootstrap.Modal(document.getElementById('authModal'));
+        let allProducts = [];
+
+        async function apiCall(url, method = 'GET', body = null, useAuth = true) {
+            const headers = { 'Content-Type': 'application/json' };
+            const token = localStorage.getItem('shop_token');
+            if (useAuth && token) headers['Authorization'] = 'Bearer ' + token;
+            if (method === 'POST') headers['Idempotency-Key'] = 'idem-' + Math.random().toString(36).substr(2);
+
+            try {
+                const res = await fetch(url, { method, headers, body: body ? JSON.stringify(body) : null });
+                if (res.status === 401 || res.status === 403) {
+                    alert('Session expired or Access denied');
+                    logout();
+                    return null;
+                }
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.details || data.error || 'Error');
+                return data;
+            } catch (err) {
+                console.error(err);
+                alert('Error: ' + err.message);
+                return null;
+            }
+        }
+
+        function updateUI() {
+            const token = localStorage.getItem('shop_token');
+            const role = localStorage.getItem('shop_role');
+            const email = localStorage.getItem('shop_email');
+
+            if (token) {
+                document.getElementById('userStatus').textContent = `Hi, ${email}`;
+                document.getElementById('authBtn').classList.add('d-none');
+                document.getElementById('logoutBtn').classList.remove('d-none');
+                document.getElementById('orders-tab').classList.remove('d-none');
+
+                if (role === 'admin') {
+                    document.getElementById('admin-tab').classList.remove('d-none');
+                } else {
+                    document.getElementById('admin-tab').classList.add('d-none');
+                }
+            } else {
+                document.getElementById('userStatus').textContent = 'Guest';
+                document.getElementById('authBtn').classList.remove('d-none');
+                document.getElementById('logoutBtn').classList.add('d-none');
+                document.getElementById('orders-tab').classList.add('d-none');
+                document.getElementById('admin-tab').classList.add('d-none');
+            }
+        }
+
+        async function loadProducts() {
+            const products = await apiCall('/products');
+            if (products) {
+                allProducts = products; // Save to global variable
+                renderProducts(allProducts); // Initial render
+            }
+        }
+
+        function filterProducts(category) {
+            document.querySelectorAll('.btn-group .btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+
+            if (category === 'all') {
+                renderProducts(allProducts);
+            } else {
+                const filtered = allProducts.filter(p => p.category === category);
+                renderProducts(filtered);
+            }
+        }
+
+        function renderProducts(productsToRender) {
+            const list = document.getElementById('productList');
+            const role = localStorage.getItem('shop_role');
+            const token = localStorage.getItem('shop_token');
+            list.innerHTML = '';
+
+            productsToRender.forEach(p => {
+                const buyBtn = token
+                    ? `<button class="btn btn-primary w-100" onclick="buyProduct(${p.id})">Buy Now</button>`
+                    : `<button class="btn btn-outline-secondary w-100" disabled>Login to Buy</button>`;
+
+                const deleteBtn = role === 'admin'
+                    ? `<button class="btn btn-danger btn-sm mt-2 w-100" onclick="deleteProduct(${p.id})">Delete</button>`
+                    : '';
+
+                const imgUrl = p.image_url || 'https://via.placeholder.com/400x300?text=No+Image';
+
+                list.innerHTML += `
+                <div class="col">
+                    <div class="card product-card">
+                        <img src="${imgUrl}" class="card-img-top" alt="${p.name}">
+                        <div class="card-body d-flex flex-column">
+                            <div class="mb-2">
+                                <span class="category-badge">${p.category || 'General'}</span>
+                            </div>
+                            <h5 class="card-title">${p.name}</h5>
+                            <p class="card-text text-muted small flex-grow-1">${p.description || 'No description'}</p>
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <span class="price-tag">$${p.price}</span>
+                            </div>
+                            ${buyBtn}
+                            ${deleteBtn}
+                        </div>
+                    </div>
+                </div>`;
+            });
+        }
+
+        async function buyProduct(id) {
+            if(!confirm("Confirm purchase?")) return;
+            const res = await apiCall('/orders', 'POST', { product_id: id });
+            if (res) alert(res.message);
+        }
+
+        async function createProduct() {
+            const body = {
+                name: document.getElementById('pName').value,
+                description: document.getElementById('pDesc').value,
+                price: parseFloat(document.getElementById('pPrice').value),
+                category: document.getElementById('pCategory').value // Передаємо категорію
+                // Image URL ми поки не передаємо з форми, щоб не ускладнювати
+            };
+            const res = await apiCall('/products', 'POST', body);
+            if (res) {
+                alert('Product Created!');
+                document.getElementById('createProductForm').reset();
+                loadProducts();
+            }
+        }
+
+        async function deleteProduct(id) {
+            if(!confirm("Delete this product?")) return;
+            const token = localStorage.getItem('shop_token');
+            const res = await fetch(`/products/${id}`, {
+                method: 'DELETE',
+                headers: { 'Authorization': 'Bearer ' + token }
+            });
+            if(res.status === 204) {
+                loadProducts();
+            } else {
+                alert('Delete failed');
+            }
+        }
+
+        async function loadOrders() {
+            const orders = await apiCall('/orders');
+            const tbody = document.getElementById('ordersTableBody');
+            tbody.innerHTML = '';
+            if (orders) {
+                orders.forEach(o => {
+                    tbody.innerHTML += `
+                    <tr>
+                        <td>${o.id}</td>
+                        <td>${o.product_name}</td>
+                        <td class="fw-bold">$${o.price}</td>
+                        <td>${new Date(o.order_date).toLocaleString()}</td>
+                    </tr>`;
+                });
+            }
+        }
+
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const body = {
+                email: document.getElementById('loginEmail').value,
+                password: document.getElementById('loginPass').value
+            };
+            const res = await fetch('/login', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(body) });
+            const data = await res.json();
+            if (res.ok) {
+                const payload = JSON.parse(atob(data.token.split('.')[1]));
+                localStorage.setItem('shop_token', data.token);
+                localStorage.setItem('shop_role', payload.role);
+                localStorage.setItem('shop_email', payload.email);
+                authModal.hide();
+                updateUI();
+                loadProducts();
+            } else {
+                alert(data.details);
+            }
+        });
+
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const body = {
+                email: document.getElementById('regEmail').value,
+                password: document.getElementById('regPass').value
+            };
+            const res = await apiCall('/register', 'POST', body, false);
+            if (res) {
+                alert(res.message);
+                document.getElementById('registerForm').reset();
+            }
+        });
+
+        function logout() {
+            localStorage.clear();
+            updateUI();
+            loadProducts(); // Reload to remove admin buttons
+            window.location.reload();
+        }
+
+        document.getElementById('logoutBtn').onclick = logout;
+        document.getElementById('createProductForm').addEventListener('submit', (e) => { e.preventDefault(); createProduct(); });
+
+        // Start
+        updateUI();
+        loadProducts();
+    </script>
+</body>
+</html>

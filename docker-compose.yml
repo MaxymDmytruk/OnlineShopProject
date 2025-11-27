@@ -1,0 +1,16 @@
+version: '3.8'
+
+services:
+  shop-api:
+    build: .
+    container_name: e-shop-container
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./database.db:/app/database.db
+
+    env_file:
+      - .env
+
+    environment:
+      - FLASK_ENV=development

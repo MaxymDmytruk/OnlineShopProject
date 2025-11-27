@@ -1,0 +1,207 @@
+openapi: 3.0.3
+info:
+  title: E-Shop Core API
+  description: API для управління онлайн-магазином цифрових товарів.
+  version: 1.0.0
+servers:
+  - url: http://127.0.0.1:5000
+    description: Мій локальний сервер розробки
+
+paths:
+  /register:
+    post:
+      summary: Реєстрація нового користувача
+      tags: [Auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthRequest'
+      responses:
+        '201':
+          description: Успішна реєстрація
+        '409':
+          description: Користувач вже існує
+
+  /login:
+    post:
+      summary: Вхід у систему (Отримання токена)
+      tags: [Auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthRequest'
+      responses:
+        '200':
+          description: Успішний вхід
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '401':
+          description: Невірний логін або пароль
+
+  /products:
+    get:
+      summary: Отримати список усіх товарів
+      tags: [Products]
+      responses:
+        '200':
+          description: Список товарів
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Product'
+    post:
+      summary: Створити новий товар (Тільки Адмін)
+      tags: [Products]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateProductDTO'
+      responses:
+        '201':
+          description: Товар успішно створено
+        '401':
+          description: Немає токена
+        '403':
+          description: Недостатньо прав (не адмін)
+
+  /products/{id}:
+    get:
+      summary: Отримати деталі одного товару
+      tags: [Products]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID товару
+      responses:
+        '200':
+          description: Деталі товару
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+        '404':
+          description: Товар не знайдено
+
+    put:
+      summary: Оновити товар (Тільки Адмін)
+      tags: [Products]
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateProductDTO'
+      responses:
+        '200':
+          description: Товар оновлено
+        '403':
+          description: Немає прав
+
+    delete:
+      summary: Видалити товар (Тільки Адмін)
+      tags: [Products]
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Товар видалено
+        '403':
+          description: Немає прав
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    AuthRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          example: admin@shop.com
+        password:
+          type: string
+          example: admin123
+      required: [email, password]
+
+    AuthResponse:
+      type: object
+      properties:
+        token:
+          type: string
+          example: eyJhbGciOiJIUzI1NiIsIn...
+
+    CreateProductDTO:
+      type: object
+      properties:
+        name:
+          type: string
+          example: 'Моя електронна книга'
+        description:
+          type: string
+          example: 'Опис книги'
+        price:
+          type: number
+          format: float
+          example: 19.99
+      required: [name, price]
+
+    Product:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+        description:
+          type: string
+        price:
+          type: number
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+        details:
+          type: string
