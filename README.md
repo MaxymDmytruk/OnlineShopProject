@@ -3,33 +3,8 @@
 ![CI Status](https://github.com/MaxymDmytruk/OnlineShopProject/actions/workflows/ci.yml/badge.svg)
 
 
-**Тема проєкту:** Бекенд для онлайн-магазину цифрових товарів (E-Shop).
+Онлайн-магазину цифрових товарів (E-Shop).
 
----
-
-## 🚀 Швидкий старт (Як запустити проєкт)
-
-Проєкт повністю контейнеризований. Для запуску потрібен лише Docker.
-
-1.  **Клонувати репозиторій:**
-    ```bash
-    git clone [https://github.com/MaxymDmytruk/OnlineShopProject.git](https://github.com/MaxymDmytruk/OnlineShopProject.git)
-    cd OnlineShopProject
-    ```
-2.  **Створити файл `.env`** (у корені):
-    ```text
-    SECRET_KEY=my-secret-dev-key
-    ```
-3.  **Запустити через Docker Compose:**
-    ```bash
-    docker compose up --build
-    ```
-4.  **Доступ:**
-    * Веб-інтерфейс: http://127.0.0.1:5000
-    * **Admin Login:** `admin@shop.com`
-    * **Password:** `admin123`
-
----
 
 ## 📂 Звіт по Лабораторних
 
@@ -87,7 +62,7 @@
 * **Результат:** При кожному `push` запускається Workflow.
 * **Артефакти:**
     * ⚙️ [Конфігурація (.github/workflows/ci.yml)](./.github/workflows/ci.yml).
-    * **Статус:** ![CI Status](https://github.com/MaxymDmytruk/OnlineShopProject/actions/workflows/ci.yml/badge.svg) (Має бути зеленим).
+    * **Статус:** ![CI Status](https://github.com/MaxymDmytruk/OnlineShopProject/actions/workflows/ci.yml/badge.svg).
 
 ---
 
