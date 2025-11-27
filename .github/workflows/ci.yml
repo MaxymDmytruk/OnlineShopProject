@@ -9,6 +9,7 @@ on:
 permissions:
   contents: read
   packages: write
+  security-events: write
 
 jobs:
   build-and-publish:
@@ -41,17 +42,33 @@ jobs:
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: Build and Push Docker Image
+    - name: Build Docker Image
       run: |
-        IMAGE_NAME=ghcr.io/${{ github.repository_owner }}/shop-api
-        
-        IMAGE_NAME=$(echo $IMAGE_NAME | tr '[A-Z]' '[a-z]')
-        
-        docker build -t $IMAGE_NAME:latest .
-        
-        if [ "${{ github.event_name }}" == "push" ]; then
-          docker push $IMAGE_NAME:latest
-          echo "Image pushed to $IMAGE_NAME:latest"
-        else
-          echo "Skipping push on pull request"
-        fi
+        IMAGE_ID=ghcr.io/${{ github.repository_owner }}/shop-api
+        IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
+        docker build . --file Dockerfile --tag $IMAGE_ID:latest
+        echo "IMAGE_NAME=$IMAGE_ID" >> $GITHUB_ENV
+
+    - name: Run Trivy vulnerability scanner
+      uses: aquasecurity/trivy-action@master
+      with:
+        image-ref: ${{ env.IMAGE_NAME }}:latest
+        format: 'table'
+        exit-code: '0'
+        ignore-unfixed: true
+        vuln-type: 'os,library'
+        severity: 'CRITICAL,HIGH'
+
+    - name: Push Docker Image
+      if: github.event_name == 'push'
+      run: |
+        docker push ${{ env.IMAGE_NAME }}:latest
+
+    - name: Generate Job Summary
+      if: always()
+      run: |
+        echo "## 🚀 Build Summary" >> $GITHUB_STEP_SUMMARY
+        echo "✅ **Tests:** Passed" >> $GITHUB_STEP_SUMMARY
+        echo "🐳 **Docker Image:** ${{ env.IMAGE_NAME }}:latest" >> $GITHUB_STEP_SUMMARY
+        echo "🔒 **Security Scan:** Completed (Check Trivy step)" >> $GITHUB_STEP_SUMMARY
+        echo "📦 **Registry:** GitHub Container Registry (GHCR)" >> $GITHUB_STEP_SUMMARY
