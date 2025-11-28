@@ -112,6 +112,7 @@ python app.py
 
 
 
+
 ## Практична робота 8: Observability з Grafana, Loki, Tempo та OpenTelemetry
 
 
@@ -122,7 +123,7 @@ Observability Demo → RED
 
 📸 Скріншот 1 — RED dashboard
 
-![img.png](img.png)
+![img.png](images/img.png)
 
 ✏ Пояснення:
 
@@ -139,7 +140,7 @@ Duration — середня/перцентильна тривалість зап
 ### Tempo — Трейси
 📸 Скріншот 2 — відкритий Trace у Tempo
 
-![img_1.png](img_1.png)
+![img_1.png](images/img_1.png)
 
 ✏ Пояснення:
 
@@ -157,7 +158,7 @@ Duration — середня/перцентильна тривалість зап
 ##  Loki — Логи
 📸 Скріншот 3 — логи в Grafana Explore / Loki
 
-![img_2.png](img_2.png)
+![img_2.png](images/img_2.png)
 
 ✏ Пояснення:
 
@@ -215,7 +216,7 @@ histogram_quantile(
 
 ## Скріншоти власного дашборду
 
-![img_4.png](img_4.png)
+![img_4.png](images/img_4.png)
 
 ## JSON дашборду
 📄 [Завантажити JSON дашборду](./docs/my-demo-red-dashboard.json)
