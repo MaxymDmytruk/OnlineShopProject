@@ -1,6 +1,5 @@
 # E-Shop Core API 
 
-![CI Status](https://github.com/MaxymDmytruk/OnlineShopProject/actions/workflows/ci.yml/badge.svg)
 
 
 Онлайн-магазину цифрових товарів (E-Shop).
@@ -90,6 +89,8 @@ python app.py
 ## 🛠️ Практична 7: CI/CD 
 
 У цьому проєкті налаштовано повний **CI/CD пайплайн** за допомогою GitHub Actions.
+
+![CI Status](https://github.com/MaxymDmytruk/OnlineShopProject/actions/workflows/ci.yml/badge.svg)
 
 ### 1. CI (Continuous Integration)
 При кожному `push` у гілку `main` або `pull request`:
@@ -220,5 +221,12 @@ histogram_quantile(
 
 ## JSON дашборду
 📄 [Завантажити JSON дашборду](./docs/my-demo-red-dashboard.json)
+
+
+### ✅ Практична 9: Kubernetes Architecture
+* **Завдання:** Розробити теоретичну схему розгортання в K8s.
+* **Артефакти:**
+    * 📄 [Опис архітектури](./docs/k8s_design.md)
+    * 🗺️ [Схема розгортання](./docs/k8s_architecture.png)
 
 
